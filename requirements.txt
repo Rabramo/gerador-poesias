@@ -3,11 +3,16 @@ transformers>=4.40.0
 datasets>=2.18.0
 accelerate>=0.29.0
 peft>=0.10.0
+huggingface_hub>=0.22.0
  
-# PyTorch 
+# PyTorch
 torch>=2.0.0
+torchvision>=0.15.0
  
 # Utilitários
 sentencepiece>=0.2.0
 protobuf>=3.20.0
-huggingface_hub>=0.22.0
+ 
+# Interface
+streamlit>=1.32.0
+ 
