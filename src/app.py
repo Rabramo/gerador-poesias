@@ -15,7 +15,7 @@ LORA_MODEL = "Rabramo/gerador-poesias-alvaro-campos"
 # -------------------------------------------------------------
 @st.cache_resource
 def carregar_modelo():
-    with st.spinner("Carregando modelo... isso pode levar alguns minutos na primeira vez."):
+    with st.spinner("Carregando modelo...          isso pode levar alguns minutos na primeira vez."):
         # Autenticação com token do Hugging Face salvo nos secrets do Streamlit
         login(token=st.secrets["HF_TOKEN"])
 
@@ -151,7 +151,7 @@ gerar = st.button("Gerar Poema", type="primary", use_container_width=True)
 # --- Resultado ---
 if gerar:
     if not verso_inicial.strip():
-        st.warning("Digite um verso inicial antes de gerar.")
+        st.warning("Digite um verso inicial ou palavra antes de gerar.")
     else:
         with st.spinner("Gerando poema no estilo de Álvaro de Campos..."):
             try:
