@@ -1,13 +1,14 @@
 import torch
 import streamlit as st
+from huggingface_hub import login
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
 # -------------------------------------------------------------
 # 1. CONFIGURAÇÕES
 # -------------------------------------------------------------
-BASE_MODEL  = "meta-llama/Llama-3.2-1B"
-LORA_MODEL  = "Rabramo/gerador-poesias-alvaro-campos"
+BASE_MODEL = "meta-llama/Llama-3.2-1B"
+LORA_MODEL = "Rabramo/gerador-poesias-alvaro-campos"
 
 # -------------------------------------------------------------
 # 2. CARREGAR MODELO
@@ -15,6 +16,9 @@ LORA_MODEL  = "Rabramo/gerador-poesias-alvaro-campos"
 @st.cache_resource
 def carregar_modelo():
     with st.spinner("Carregando modelo... isso pode levar alguns minutos na primeira vez."):
+        # Autenticação com token do Hugging Face salvo nos secrets do Streamlit
+        login(token=st.secrets["HF_TOKEN"])
+
         tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
         tokenizer.pad_token = tokenizer.eos_token
 
