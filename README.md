@@ -2,6 +2,9 @@
 
 Modelo generativo treinado para criar poemas no estilo de Álvaro de Campos, heterônimo futurista e modernista de Fernando Pessoa, utilizando Hugging Face Transformers com fine-tuning via LoRA.
 
+## Demo do app no Streamlit
+
+URL: https://geradorpoesiasalvarodecampos.streamlit.app/
 ---
 
 ## Sobre o projeto
