@@ -1,7 +1,7 @@
 # Ambiente virtual
 .venv/
 
-# Modelo treinado (muito grande para o GitHub)
+# Modelo treinado
 modelo_poesia/
 
 # Python
