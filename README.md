@@ -125,6 +125,9 @@ Projeto desenvolvido como prova substitutiva da Fase 4 do curso de pós-graduaç
 O objetivo é demonstrar o ciclo completo de desenvolvimento de um modelo generativo utilizando a biblioteca Hugging Face Transformers: definição do tema, curadoria do dataset, fine-tuning com LoRA e deploy de uma aplicação playground em produção via Streamlit.
 
 ---
+## AI como ferramenta de apoio
+
+O desenvolvimento contou com o auxílio do assistente de IA Claude (Anthropic, modelo Claude Sonnet 4.6) para tarefas de suporte como geração inicial do dataset, scaffolding de código, resolução de erros de compatibilidade de bibliotecas e sugestão inicial e revisão de textos. A definição da arquitetura, escolha do modelo, revisão do dataset, depuração, testes e validação dos resultados foram realizados pelo autor.
 
 ## Licença
 
