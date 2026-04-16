@@ -3,14 +3,6 @@
 #  Modelo : meta-llama/Llama-3.2-1B
 #  Técnica: LoRA (Low-Rank Adaptation)
 # =============================================================
-#
-#  ANTES DE RODAR:
-#  1. Ative o .venv:  source .venv/bin/activate
-#  2. Instale:        pip install -r requirements.txt
-#  3. Login HF:       huggingface-cli login
-#  4. Execute:        python src/finetune.py
-#
-# =============================================================
 
 import csv
 import torch
@@ -42,8 +34,8 @@ EPOCHS        = 5
 LEARNING_RATE = 2e-4
 
 # Configuração do LoRA
-LORA_R        = 8      # rank — quanto maior, mais parâmetros treináveis
-LORA_ALPHA    = 16     # escala do LoRA
+LORA_R        = 8      
+LORA_ALPHA    = 16     
 LORA_DROPOUT  = 0.05
 
 # -------------------------------------------------------------
@@ -74,7 +66,7 @@ def tokenizar(textos, tokenizer):
             max_length=MAX_LENGTH,
             padding="max_length",
         )
-        # Para geração de texto, labels = input_ids
+
         tokens["labels"] = tokens["input_ids"].copy()
         return tokens
 
@@ -98,7 +90,6 @@ def aplicar_lora(model):
     )
     model = get_peft_model(model, lora_config)
 
-    # Mostra quantos parâmetros serão treinados
     model.print_trainable_parameters()
     return model
 
@@ -121,9 +112,9 @@ def treinar():
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
         torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-        device_map="auto",          # usa GPU se disponível, senão CPU
+        device_map={"": "cpu"},          
     )
-    model.config.use_cache = False  # necessário para treino com LoRA
+    model.config.use_cache = False  
 
     # --- Aplica LoRA ---
     print("\n🔧 Aplicando LoRA ao modelo...")
@@ -142,7 +133,6 @@ def treinar():
     # --- Argumentos de treino ---
     training_args = TrainingArguments(
         output_dir=OUTPUT_DIR,
-        overwrite_output_dir=True,
         num_train_epochs=EPOCHS,
         per_device_train_batch_size=BATCH_SIZE,
         per_device_eval_batch_size=BATCH_SIZE,
@@ -150,9 +140,9 @@ def treinar():
         learning_rate=LEARNING_RATE,
         warmup_steps=20,
         weight_decay=0.01,
-        logging_dir=str(BASE_DIR / "logs"),
+        
         logging_steps=5,
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
         fp16=torch.cuda.is_available(),  # float16 só com GPU
@@ -166,18 +156,18 @@ def treinar():
         args=training_args,
         train_dataset=train_data,
         eval_dataset=val_data,
-        tokenizer=tokenizer,
+        
         data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
     )
 
-    print("🏋️  Treinando o modelo...\n")
+    print("Treinando o modelo...\n")
     trainer.train()
 
     # --- Salvar modelo + tokenizer ---
-    print(f"\n💾 Salvando modelo em: {OUTPUT_DIR}")
+    print(f"\nSalvando modelo em: {OUTPUT_DIR}")
     model.save_pretrained(OUTPUT_DIR)
     tokenizer.save_pretrained(OUTPUT_DIR)
-    print("✅ Fine-tuning concluído com sucesso!\n")
+    print("Fine-tuning concluído com sucesso!\n")
 
 
 # -------------------------------------------------------------
@@ -197,7 +187,7 @@ def gerar_poesia(verso_inicial: str, max_new_tokens: int = 200) -> str:
     base_model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
         torch_dtype=torch.float32,
-        device_map="auto",
+        device_map={"": "cpu"},
     )
     model = PeftModel.from_pretrained(base_model, OUTPUT_DIR)
     model.eval()
@@ -209,10 +199,10 @@ def gerar_poesia(verso_inicial: str, max_new_tokens: int = 200) -> str:
             **inputs,
             max_new_tokens=max_new_tokens,
             do_sample=True,
-            temperature=0.85,        # criatividade — entre 0.7 e 1.0
+            temperature=0.85,        
             top_p=0.92,
             top_k=50,
-            repetition_penalty=1.2,  # evita repetição de versos
+            repetition_penalty=1.2,  
             pad_token_id=tokenizer.eos_token_id,
         )
 
@@ -239,7 +229,7 @@ if __name__ == "__main__":
     ]
 
     for verso in versos_teste:
-        print(f"\n✏️  Verso inicial : {verso}")
-        print(f"📜 Poema gerado  :\n")
+        print(f"\nVerso inicial : {verso}")
+        print(f"Poema gerado  :\n")
         print(gerar_poesia(verso))
         print("\n" + "-" * 55)
