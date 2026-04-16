@@ -40,6 +40,16 @@ As obras de Fernando Pessoa e seus heterônimos são domínio público desde 200
 
 ---
 
+## Dataset
+
+O dataset foi criado especificamente para este projeto e contém 30 poemas originais escritos no estilo de Álvaro de Campos, cobrindo seus temas centrais: as máquinas e a modernidade industrial, o mar e as viagens, o tédio existencial, a solidão urbana, Lisboa e Portugal, e a multiplicidade do eu sensacionista.
+
+Cada entrada é um poema completo em texto livre, formato ideal para fine-tuning de modelos generativos do tipo decoder-only como o Llama. O modelo aprende o estilo lendo os poemas como texto contínuo — sem separação entre prompt e resposta — e ao receber um verso inicial replica a voz, o ritmo e os temas característicos de Álvaro de Campos.
+
+O dataset foi gerado com auxílio de inteligência artificial e revisado manualmente para garantir aderência ao estilo pessoano. 
+
+---
+
 ## Estrutura do projeto
 
 ```
@@ -107,7 +117,8 @@ O LoRA congela os pesos originais do modelo e treina apenas uma camada adicional
 
 ## Contexto acadêmico
 
-Projeto desenvolvido como requisito do curso de pós-graduação stricto sensu em Machine Learning Engineering oferecido no Centro de Pós-Graduação da FIAP — Centro Universitário.
+Projeto desenvolvido como prova substitutiva da Fase 4 do curso de pós-graduação *stricto sensu* em Machine Learning Engineering oferecido no Centro de Pós-Graduação da FIAP — Centro Universitário.
+
 O objetivo é demonstrar o ciclo completo de desenvolvimento de um modelo generativo utilizando a biblioteca Hugging Face Transformers: definição do tema, curadoria do dataset, fine-tuning com LoRA e deploy de uma aplicação playground em produção via Streamlit.
 
 ---
