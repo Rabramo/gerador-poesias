@@ -46,12 +46,29 @@ def carregar_dataset(path: Path):
         raise FileNotFoundError(f"\n❌ Dataset não encontrado em: {path}\n")
 
     textos = []
+    skipped = 0
     with open(path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
+        if reader.fieldnames is None or "texto" not in reader.fieldnames:
+            raise ValueError(
+                f"\n❌ O dataset deve conter a coluna 'texto'. Campos encontrados: {reader.fieldnames}\n"
+            )
+
         for row in reader:
-            textos.append(row["texto"].strip())
+            texto = row.get("texto", "")
+            if texto is None:
+                texto = ""
+
+            texto = texto.strip()
+            if not texto:
+                skipped += 1
+                continue
+
+            textos.append(texto)
 
     print(f"✅ Dataset carregado: {len(textos)} poemas")
+    if skipped:
+        print(f"⚠️ Linhas ignoradas: {skipped} entradas vazias ou inválidas")
     return textos
 
 
@@ -64,7 +81,7 @@ def tokenizar(textos, tokenizer):
             exemplos["texto"],
             truncation=True,
             max_length=MAX_LENGTH,
-            padding="max_length",
+            padding="longest",
         )
 
         tokens["labels"] = tokens["input_ids"].copy()

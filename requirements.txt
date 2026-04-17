@@ -7,10 +7,10 @@ huggingface_hub>=0.22.0
  
 # PyTorch
 torch>=2.0.0
-torchvision>=0.15.0
  
 # Utilitários
 sentencepiece>=0.2.0
+safetensors>=0.3.0
 protobuf>=3.20.0
  
 # Interface

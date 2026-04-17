@@ -20,5 +20,11 @@ logs/
 # VS Code
 .vscode/
 
+# Streamlit
+.streamlit/
+
+# Logs
+*.log
+
 # Mac
 .DS_Store

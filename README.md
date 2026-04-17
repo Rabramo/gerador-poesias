@@ -11,6 +11,8 @@ URL: https://geradorpoesiasalvarodecampos.streamlit.app/
 
 O usuário digita um verso inicial e o modelo gera um poema completo no estilo de Álvaro de Campos — com sua voz sensacionista, versos longos e livres, e visão ao mesmo tempo deslumbrada e angustiada da modernidade industrial.
 
+O app Streamlit consome o modelo fine-tuned `Rabramo/gerador-poesias-alvaro-campos` via Hugging Face Inference API.
+
 > *"Não sou nada. Nunca serei nada. Não posso querer ser nada.*
 > *À parte isso, tenho em mim todos os sonhos do mundo."*
 >
@@ -23,6 +25,7 @@ O usuário digita um verso inicial e o modelo gera um poema completo no estilo d
 | Componente | Tecnologia |
 |---|---|
 | Modelo base | `meta-llama/Llama-3.2-1B` |
+| Modelo fine-tuned | `Rabramo/gerador-poesias-alvaro-campos` |
 | Fine-tuning | LoRA (Low-Rank Adaptation) |
 | Biblioteca principal | Hugging Face Transformers |
 | Adaptador LoRA | Hugging Face PEFT |
@@ -49,6 +52,8 @@ O dataset foi criado especificamente para este projeto e contém 30 poemas origi
 
 Cada entrada é um poema completo em texto livre, formato ideal para fine-tuning de modelos generativos do tipo decoder-only como o Llama. O modelo aprende o estilo lendo os poemas como texto contínuo — sem separação entre prompt e resposta — e ao receber um verso inicial replica a voz, o ritmo e os temas característicos de Álvaro de Campos.
 
+O script `src/finetune.py` valida que o CSV contenha a coluna `texto` e ignora linhas vazias ou inválidas antes de iniciar o treinamento. O modelo treinado é salvo localmente em `modelo_poesia/`.
+
 O dataset foi gerado com auxílio de inteligência artificial e revisado manualmente para garantir aderência ao estilo pessoano. 
 
 ---
@@ -63,6 +68,7 @@ gerador-poesias/
 ├── src/
 │   ├── finetune.py               # script de fine-tuning com LoRA
 │   └── app.py                    # interface Streamlit
+├── merge_and_push.py             # merge do LoRA e push para Hugging Face Hub
 ├── .gitignore
 ├── requirements.txt
 └── README.md
@@ -98,16 +104,32 @@ Faça login no Hugging Face (necessário para baixar o Llama):
 hf auth login
 ```
 
+Configure o token do Hugging Face para o Streamlit, por exemplo em `~/.streamlit/secrets.toml`:
+
+```toml
+HF_TOKEN = "seu_token_aqui"
+```
+
 Execute o fine-tuning:
 
 ```bash
 python3 src/finetune.py
 ```
 
-Rode o playground:
+O `src/finetune.py` carrega o dataset `dataset/dataset_poesias.csv`, valida a coluna `texto`, ignora linhas vazias e salva o adapter LoRA em `modelo_poesia/`.
+
+Rode o playground localmente:
 
 ```bash
 streamlit run src/app.py
+```
+
+O app Streamlit usa o modelo fine-tuned `Rabramo/gerador-poesias-alvaro-campos` via Hugging Face Inference API e requer `HF_TOKEN` em `~/.streamlit/secrets.toml`.
+
+Opcionalmente, use `merge_and_push.py` para mesclar o adapter LoRA e enviar o modelo ao Hugging Face Hub:
+
+```bash
+python3 merge_and_push.py
 ```
 
 ---

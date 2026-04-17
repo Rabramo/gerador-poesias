@@ -5,6 +5,7 @@ from huggingface_hub import InferenceClient
 # 1. CONFIGURAÇÕES
 # -------------------------------------------------------------
 BASE_MODEL = "meta-llama/Llama-3.2-1B"
+FINE_TUNED_MODEL = "Rabramo/gerador-poesias-alvaro-campos"
 
 # -------------------------------------------------------------
 # 2. CLIENTE DE INFERÊNCIA
@@ -12,7 +13,7 @@ BASE_MODEL = "meta-llama/Llama-3.2-1B"
 @st.cache_resource
 def get_client():
     return InferenceClient(
-        model=BASE_MODEL,
+        model=FINE_TUNED_MODEL,
         token=st.secrets["HF_TOKEN"],
     )
 
@@ -29,6 +30,7 @@ def gerar_poesia(verso_inicial, max_tokens, temperatura, top_p):
         top_p=top_p,
         repetition_penalty=1.2,
         do_sample=True,
+        return_full_text=False,
     )
 
     return verso_inicial + resposta
@@ -90,7 +92,8 @@ st.sidebar.divider()
 st.sidebar.markdown("**Sobre o modelo**")
 st.sidebar.markdown(
     """
-    - **Modelo:** Llama 3.2-1B
+    - **Modelo:** Rabramo/gerador-poesias-alvaro-campos
+    - **Base:** Llama 3.2-1B
     - **Técnica:** LoRA Fine-tuning
     - **Dataset:** Poesias de Álvaro de Campos
     - **Biblioteca:** Hugging Face Transformers
@@ -138,23 +141,6 @@ if gerar:
 
                 st.divider()
                 st.markdown("### Poema Gerado")
-                st.markdown(
-                    f"""
-                    <div style="
-                        background-color: #1e1e2e;
-                        border-left: 4px solid #cba6f7;
-                        padding: 20px 24px;
-                        border-radius: 8px;
-                        font-family: 'Georgia', serif;
-                        font-size: 16px;
-                        line-height: 1.8;
-                        color: #cdd6f4;
-                        white-space: pre-wrap;
-                    ">{poema}</div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
                 st.code(poema, language=None)
                 st.caption("Use o botão de cópia acima para copiar o poema.")
 
