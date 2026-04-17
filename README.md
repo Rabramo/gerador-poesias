@@ -64,16 +64,21 @@ O dataset foi gerado com auxílio de inteligência artificial e revisado manualm
 ```
 gerador-poesias/
 ├── dataset/
-│   └── dataset_poesias.csv       # poemas no estilo de Álvaro de Campos
-├── modelo_poesia/                 # modelo treinado (não versionado)
-├── space/                         # arquivos para deploy no HF Space
-│   ├── app.py                    # entry point do Space (idêntico a src/app.py)
-│   ├── requirements.txt          # dependências do Space
-│   └── README.md                 # metadados do Space (YAML frontmatter)
+│   └── dataset_poesias.csv            # 30 poemas sintéticos no estilo de Álvaro de Campos
+├── data/                               # dataset scrapeado (não versionado)
+│   ├── poemas_alvaro_campos.json      # poemas com metadados completos
+│   └── dataset_alvaro_campos.csv      # formato pronto para finetune.py
+├── modelo_poesia/                      # adapter LoRA treinado (não versionado)
+├── space/                              # arquivos para deploy no HF Space
+│   ├── app.py                         # entry point do Space (idêntico a src/app.py)
+│   ├── requirements.txt               # dependências do Space
+│   └── README.md                      # metadados do Space (YAML frontmatter)
 ├── src/
-│   ├── finetune.py               # script de fine-tuning com LoRA
-│   └── app.py                    # interface Streamlit
-├── merge_and_push.py             # merge do LoRA e push para Hugging Face Hub
+│   ├── scrape_alvaro_campos.py        # scraping de poemas do arquivopessoa.net
+│   ├── finetune.py                    # fine-tuning com LoRA
+│   └── app.py                         # interface Streamlit
+├── merge_and_push.py                  # merge do LoRA e push para Hugging Face Hub
+├── LICENSE
 ├── .gitignore
 ├── requirements.txt
 └── README.md

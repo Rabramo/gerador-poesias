@@ -4,6 +4,9 @@
 # Modelo treinado
 modelo_poesia/
 
+# Dataset scrapeado (gerado por src/scrape_alvaro_campos.py)
+data/
+
 # Python
 __pycache__/
 *.pyc
@@ -26,6 +29,9 @@ logs/
 
 # Scripts utilitários de uso único
 push_model_card.py
+
+# Arquivos pessoais
+roteiro_video.md
 
 # Clone do HF Space (repositório separado)
 hf-space/
