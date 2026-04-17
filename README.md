@@ -30,7 +30,7 @@ O app carrega o modelo fine-tuned `Rabramo/gerador-poesias-alvaro-campos` direta
 | Fine-tuning | LoRA (Low-Rank Adaptation) |
 | Biblioteca principal | Hugging Face Transformers |
 | Adaptador LoRA | Hugging Face PEFT |
-| Interface | Streamlit |
+| Interface | Streamlit (hospedado em HF Spaces) |
 | Linguagem | Python 3.x |
 
 ---
