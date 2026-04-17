@@ -2,16 +2,17 @@
 
 Modelo generativo treinado para criar poemas no estilo de Álvaro de Campos, heterônimo futurista e modernista de Fernando Pessoa, utilizando Hugging Face Transformers com fine-tuning via LoRA.
 
-## Demo do app no Streamlit
+## Demo
 
-URL: https://geradorpoesiasalvarodecampos.streamlit.app/
+**HF Space (deploy principal):** https://huggingface.co/spaces/Rabramo/gerador-poesias
+
 ---
 
 ## Sobre o projeto
 
 O usuário digita um verso inicial e o modelo gera um poema completo no estilo de Álvaro de Campos — com sua voz sensacionista, versos longos e livres, e visão ao mesmo tempo deslumbrada e angustiada da modernidade industrial.
 
-O app Streamlit consome o modelo fine-tuned `Rabramo/gerador-poesias-alvaro-campos` via Hugging Face Inference API.
+O app carrega o modelo fine-tuned `Rabramo/gerador-poesias-alvaro-campos` diretamente via Hugging Face Transformers, sem depender da Serverless Inference API.
 
 > *"Não sou nada. Nunca serei nada. Não posso querer ser nada.*
 > *À parte isso, tenho em mim todos os sonhos do mundo."*
@@ -65,6 +66,10 @@ gerador-poesias/
 ├── dataset/
 │   └── dataset_poesias.csv       # poemas no estilo de Álvaro de Campos
 ├── modelo_poesia/                 # modelo treinado (não versionado)
+├── space/                         # arquivos para deploy no HF Space
+│   ├── app.py                    # entry point do Space (idêntico a src/app.py)
+│   ├── requirements.txt          # dependências do Space
+│   └── README.md                 # metadados do Space (YAML frontmatter)
 ├── src/
 │   ├── finetune.py               # script de fine-tuning com LoRA
 │   └── app.py                    # interface Streamlit
@@ -124,13 +129,56 @@ Rode o playground localmente:
 streamlit run src/app.py
 ```
 
-O app Streamlit usa o modelo fine-tuned `Rabramo/gerador-poesias-alvaro-campos` via Hugging Face Inference API e requer `HF_TOKEN` em `~/.streamlit/secrets.toml`.
+O app carrega o modelo `Rabramo/gerador-poesias-alvaro-campos` diretamente via Hugging Face Transformers e requer `HF_TOKEN` em `~/.streamlit/secrets.toml`.
 
 Opcionalmente, use `merge_and_push.py` para mesclar o adapter LoRA e enviar o modelo ao Hugging Face Hub:
 
 ```bash
 python3 merge_and_push.py
 ```
+
+---
+
+## Deploy no Hugging Face Space
+
+O deploy em produção é feito via **HF Space** (Streamlit SDK), que carrega o modelo diretamente — sem depender da Serverless Inference API.
+
+### 1. Criar o Space
+
+Acesse [huggingface.co/new-space](https://huggingface.co/new-space) e configure:
+
+| Campo | Valor |
+|---|---|
+| Owner | Rabramo |
+| Space name | gerador-poesias |
+| SDK | Streamlit |
+| Visibility | Public |
+
+### 2. Enviar os arquivos
+
+```bash
+# Clone o Space recém-criado
+git clone https://huggingface.co/spaces/Rabramo/gerador-poesias hf-space
+cd hf-space
+
+# Copie os arquivos do diretório space/ deste repositório
+cp /caminho/para/gerador-poesias/space/* .
+
+git add .
+git commit -m "deploy inicial"
+git push
+```
+
+### 3. Configurar o token
+
+No Space, acesse **Settings → Variables and secrets → New secret**:
+
+```
+Name:  HF_TOKEN
+Value: seu_token_aqui
+```
+
+O Space baixa e inicializa o modelo na primeira requisição (~2–3 min). As seguintes são instantâneas graças ao cache do Streamlit.
 
 ---
 
