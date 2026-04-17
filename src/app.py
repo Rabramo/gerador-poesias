@@ -159,7 +159,11 @@ if gerar:
                 st.caption("Use o botão de cópia acima para copiar o poema.")
 
             except Exception as e:
-                st.error(f"Erro ao gerar poema: {e}")
+                # Deixa StopException (st.stop) propagar normalmente
+                if "StopException" in type(e).__name__:
+                    raise
+                msg = str(e) or type(e).__name__
+                st.error(f"Erro ao gerar poema: {msg}")
 
 # --- Rodapé ---
 st.divider()
