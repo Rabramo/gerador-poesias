@@ -2,17 +2,20 @@ import os
 import streamlit as st
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from peft import PeftModel
 
 # -------------------------------------------------------------
 # 1. CONFIGURAÇÕES
 # -------------------------------------------------------------
-FINE_TUNED_MODEL = "Rabramo/gerador-poesias-alvaro-campos"
+BASE_MODEL    = "meta-llama/Llama-3.2-1B"
+ADAPTER_MODEL = "Rabramo/gerador-poesias-alvaro-campos"
 
 # -------------------------------------------------------------
 # 2. CARREGAMENTO DO MODELO
 # Carrega uma vez e mantém em cache durante a sessão.
-# Aceita token via st.secrets (local / Streamlit Cloud) ou
-# variável de ambiente (HF Spaces).
+# Tokenizer: base model (garante arquivos completos e corretos).
+# Modelo: base + adapter LoRA via PeftModel.
+# Aceita token via st.secrets (local) ou variável de ambiente (HF Spaces).
 # -------------------------------------------------------------
 @st.cache_resource(show_spinner="Carregando modelo... (pode levar alguns minutos na primeira vez)")
 def load_model():
@@ -24,15 +27,16 @@ def load_model():
         )
         st.stop()
 
-    tokenizer = AutoTokenizer.from_pretrained(FINE_TUNED_MODEL, token=token)
+    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, token=token)
     tokenizer.pad_token = tokenizer.eos_token
 
-    model = AutoModelForCausalLM.from_pretrained(
-        FINE_TUNED_MODEL,
+    base = AutoModelForCausalLM.from_pretrained(
+        BASE_MODEL,
         torch_dtype=torch.float32,
         device_map={"": "cpu"},
         token=token,
     )
+    model = PeftModel.from_pretrained(base, ADAPTER_MODEL, token=token)
     model.eval()
     return tokenizer, model
 
