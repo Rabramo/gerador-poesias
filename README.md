@@ -49,13 +49,13 @@ As obras de Fernando Pessoa e seus heterônimos são domínio público desde 200
 
 ## Dataset
 
-O dataset foi criado especificamente para este projeto e contém 30 poemas originais escritos no estilo de Álvaro de Campos, cobrindo seus temas centrais: as máquinas e a modernidade industrial, o mar e as viagens, o tédio existencial, a solidão urbana, Lisboa e Portugal, e a multiplicidade do eu sensacionista.
+O dataset é composto por poemas autênticos de Álvaro de Campos coletados do [Arquivo Pessoa](http://arquivopessoa.net) via `src/scrape_alvaro_campos.py`. As obras de Fernando Pessoa e seus heterônimos são domínio público desde 2006, conforme a legislação brasileira (Lei 9.610/98) e portuguesa.
 
-Cada entrada é um poema completo em texto livre, formato ideal para fine-tuning de modelos generativos do tipo decoder-only como o Llama. O modelo aprende o estilo lendo os poemas como texto contínuo — sem separação entre prompt e resposta — e ao receber um verso inicial replica a voz, o ritmo e os temas característicos de Álvaro de Campos.
+O scraper percorre o acervo do site, filtra os textos pelo autor e extrai título e corpo de cada poema, salvando o resultado em `data/dataset_alvaro_campos.csv` — formato CSV com coluna `texto`, diretamente compatível com `src/finetune.py`.
 
-O script `src/finetune.py` valida que o CSV contenha a coluna `texto` e ignora linhas vazias ou inválidas antes de iniciar o treinamento. O modelo treinado é salvo localmente em `modelo_poesia/`.
+Cada entrada é um poema completo em texto livre — sem separação entre prompt e resposta — formato ideal para fine-tuning de modelos decoder-only como o Llama. O modelo aprende o estilo lendo os poemas como texto contínuo e, ao receber um verso inicial, replica a voz, o ritmo e os temas característicos de Álvaro de Campos.
 
-O dataset foi gerado com auxílio de inteligência artificial e revisado manualmente para garantir aderência ao estilo pessoano. 
+O script `src/finetune.py` valida que o CSV contenha a coluna `texto` e ignora linhas vazias ou inválidas antes de iniciar o treinamento.
 
 ---
 
@@ -63,8 +63,6 @@ O dataset foi gerado com auxílio de inteligência artificial e revisado manualm
 
 ```
 gerador-poesias/
-├── dataset/
-│   └── dataset_poesias.csv            # 30 poemas sintéticos no estilo de Álvaro de Campos
 ├── data/                               # dataset scrapeado (não versionado)
 │   ├── poemas_alvaro_campos.json      # poemas com metadados completos
 │   └── dataset_alvaro_campos.csv      # formato pronto para finetune.py
