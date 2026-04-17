@@ -27,5 +27,11 @@ logs/
 # Scripts utilitários de uso único
 push_model_card.py
 
+# Clone do HF Space (repositório separado)
+hf-space/
+
+# Claude Code
+.claude/
+
 # Mac
 .DS_Store
