@@ -4,7 +4,6 @@ from huggingface_hub import InferenceClient
 # -------------------------------------------------------------
 # 1. CONFIGURAÇÕES
 # -------------------------------------------------------------
-BASE_MODEL = "meta-llama/Llama-3.2-1B"
 FINE_TUNED_MODEL = "Rabramo/gerador-poesias-alvaro-campos"
 
 # -------------------------------------------------------------
@@ -12,9 +11,16 @@ FINE_TUNED_MODEL = "Rabramo/gerador-poesias-alvaro-campos"
 # -------------------------------------------------------------
 @st.cache_resource
 def get_client():
+    token = st.secrets.get("HF_TOKEN")
+    if not token:
+        st.error(
+            "Token do Hugging Face não encontrado. "
+            "Configure HF_TOKEN em `.streamlit/secrets.toml`."
+        )
+        st.stop()
     return InferenceClient(
         model=FINE_TUNED_MODEL,
-        token=st.secrets["HF_TOKEN"],
+        token=token,
     )
 
 # -------------------------------------------------------------
@@ -50,7 +56,7 @@ st.title("Gerador de Poesias")
 st.subheader("Estilo Álvaro de Campos — Fernando Pessoa")
 st.markdown(
     """
-    > *"Não sou nada. Nunca serei nada. Não posso querer ser nada.  
+    > *"Não sou nada. Nunca serei nada. Não posso querer ser nada.
     > À parte isso, tenho em mim todos os sonhos do mundo."*
     >
     > — Álvaro de Campos, *Tabacaria*
@@ -100,11 +106,16 @@ st.sidebar.markdown(
     """
 )
 
+# --- Estado inicial do verso ---
+if "verso_inicial" not in st.session_state:
+    st.session_state.verso_inicial = ""
+
 # --- Área principal ---
 st.markdown("### Digite um verso inicial")
 
 verso_inicial = st.text_area(
     label="Verso inicial",
+    value=st.session_state.verso_inicial,
     placeholder="Ex: Estou cansado de tudo e de nada,",
     height=80,
     label_visibility="collapsed",
@@ -116,15 +127,18 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     if st.button("Mar e solidão"):
-        verso_inicial = "Ó mar imenso e indiferente,"
+        st.session_state.verso_inicial = "Ó mar imenso e indiferente,"
+        st.rerun()
 
 with col2:
     if st.button("Máquinas"):
-        verso_inicial = "As máquinas trabalham enquanto eu"
+        st.session_state.verso_inicial = "As máquinas trabalham enquanto eu"
+        st.rerun()
 
 with col3:
     if st.button("Tédio"):
-        verso_inicial = "Estou cansado de tudo,"
+        st.session_state.verso_inicial = "Estou cansado de tudo,"
+        st.rerun()
 
 # --- Botão gerar ---
 st.markdown("")

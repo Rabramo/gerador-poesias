@@ -2,6 +2,10 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
+# ATENÇÃO: este script mescla o adapter LoRA nos pesos da base e faz push do
+# modelo completo para ADAPTER_REPO. Após o push, o repositório deixará de
+# conter o adapter isolado — apenas o modelo já mesclado estará disponível.
+# Requer autenticação prévia: huggingface-cli login
 BASE_MODEL   = "meta-llama/Llama-3.2-1B"
 ADAPTER_REPO = "Rabramo/gerador-poesias-alvaro-campos"
 

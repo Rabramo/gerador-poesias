@@ -81,7 +81,7 @@ def tokenizar(textos, tokenizer):
             exemplos["texto"],
             truncation=True,
             max_length=MAX_LENGTH,
-            padding="longest",
+            padding=False,
         )
 
         tokens["labels"] = tokens["input_ids"].copy()
@@ -161,6 +161,7 @@ def treinar():
         logging_steps=5,
         eval_strategy="epoch",
         save_strategy="epoch",
+        save_total_limit=2,
         load_best_model_at_end=True,
         fp16=torch.cuda.is_available(),  # float16 só com GPU
         report_to="none",                # desativa W&B

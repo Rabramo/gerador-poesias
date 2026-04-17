@@ -81,7 +81,7 @@ gerador-poesias/
 Clone o repositório e acesse a pasta:
 
 ```bash
-git clone https://github.com/SEU_USUARIO/gerador-poesias.git
+git clone https://github.com/Rabramo/gerador-poesias.git
 cd gerador-poesias
 ```
 
