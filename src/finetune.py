@@ -5,6 +5,7 @@
 # =============================================================
 
 import csv
+import math
 import torch
 from pathlib import Path
 from datasets import Dataset
@@ -181,8 +182,26 @@ def treinar():
     print("Treinando o modelo...\n")
     trainer.train()
 
+    # -------------------------------------------------------------
+    # AVALIAÇÃO DO MODELO — Perplexidade no conjunto de validação
+    # -------------------------------------------------------------
+    # A perplexidade mede quão bem o modelo prevê o próximo token.
+    # Valores menores indicam melhor ajuste ao estilo do dataset.
+    # Fórmula: PPL = exp(eval_loss)
+    print("\n📊 Avaliando qualidade do modelo no conjunto de validação...")
+    eval_results = trainer.evaluate()
+    eval_loss    = eval_results["eval_loss"]
+    perplexidade = math.exp(eval_loss)
+
+    print(f"   Eval Loss    : {eval_loss:.4f}")
+    print(f"   Perplexidade : {perplexidade:.2f}")
+    print(
+        "   Interpretação: valores abaixo de 20 indicam boa aderência ao "
+        "estilo do dataset para modelos fine-tuned em domínio restrito.\n"
+    )
+
     # --- Salvar modelo + tokenizer ---
-    print(f"\nSalvando modelo em: {OUTPUT_DIR}")
+    print(f"Salvando modelo em: {OUTPUT_DIR}")
     model.save_pretrained(OUTPUT_DIR)
     tokenizer.save_pretrained(OUTPUT_DIR)
     print("Fine-tuning concluído com sucesso!\n")

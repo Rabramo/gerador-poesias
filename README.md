@@ -134,6 +134,44 @@ python3 merge_and_push.py
 
 ---
 
+## Avaliação do Modelo
+
+### Métrica objetiva — Perplexidade
+
+A qualidade do modelo foi avaliada pela **perplexidade** (*perplexity*, PPL) calculada sobre o conjunto de validação (10% do dataset, separado antes do treino).
+
+A perplexidade mede quão bem o modelo prevê o próximo token: **valores menores indicam maior aderência ao estilo do dataset**. A fórmula é `PPL = exp(eval_loss)`.
+
+O script `src/finetune.py` calcula e exibe automaticamente a perplexidade ao final do treino:
+
+```
+📊 Avaliando qualidade do modelo no conjunto de validação...
+   Eval Loss    : 2.1983
+   Perplexidade : 9.01
+```
+
+Para modelos fine-tuned em domínio restrito (30 poemas de um único estilo), valores de PPL abaixo de 20 indicam boa aderência ao corpus de treinamento.
+
+---
+
+### Avaliação qualitativa — Ajuste de parâmetros
+
+Além da métrica objetiva, a qualidade das gerações foi avaliada qualitativamente testando diferentes combinações de parâmetros e observando coerência estilística, aderência aos temas de Álvaro de Campos e ausência de repetições.
+
+| Temperatura | Top-p | Observação |
+|---|---|---|
+| 0.5 | 0.80 | Texto previsível, pouca variação vocabular, frases repetidas |
+| 0.7 | 0.85 | Coerente, mas ainda conservador; perde fluidez poética |
+| **0.85** | **0.92** | **Melhor equilíbrio: criativo, coerente e fiel ao estilo** |
+| 1.1 | 0.95 | Criativo em excesso; perde coerência semântica |
+| 1.5 | 1.00 | Saída incoerente, geração caótica |
+
+O parâmetro `repetition_penalty=1.2` foi adotado em todos os testes para suprimir repetição de versos — problema comum em modelos treinados em corpus pequeno.
+
+Os valores **temperatura 0.85** e **top-p 0.92** foram selecionados como padrão por produzirem poemas com maior aderência ao estilo sensacionista e futurista de Álvaro de Campos: versos longos, vocabulário variado e tensão emocional característica.
+
+---
+
 ## Como funciona o LoRA
 
 O LoRA congela os pesos originais do modelo e treina apenas uma camada adicional de baixo rank — permitindo fine-tuning eficiente de modelos grandes com poucos recursos computacionais. Neste projeto, apenas 0,17% dos parâmetros do Llama são treinados.
