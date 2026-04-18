@@ -17,6 +17,8 @@ __pycache__/
 # Logs
 logs/
 *.log
+finetune_log.txt
+scrape_log.txt
 
 # Variáveis de ambiente
 .env
@@ -30,7 +32,7 @@ logs/
 # Scripts utilitários de uso único
 push_model_card.py
 
-# Arquivos pessoais
+# Arquivo de roteiro (uso pessoal)
 roteiro_video.md
 
 # Clone do HF Space (repositório separado)
