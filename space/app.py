@@ -67,7 +67,6 @@ def gerar_poesia(verso_inicial, max_tokens, temperatura, top_p):
 
 st.set_page_config(
     page_title="Gerador de Poesias — Álvaro de Campos",
-    page_icon="✍️",
     layout="centered",
 )
 

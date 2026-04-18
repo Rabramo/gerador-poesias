@@ -1,23 +1,26 @@
 """
 scrape_alvaro_campos.py
 -----------------------
-Faz scraping de todos os poemas de Álvaro de Campos do Arquivo Pessoa
+Faz scraping de todos os poemas de Alvaro de Campos do Arquivo Pessoa
 (http://arquivopessoa.net) e salva em dois formatos:
 
-  data/poemas_alvaro_campos.json   → lista de dicionários com metadados
-  data/dataset_alvaro_campos.csv   → formato pronto para fine-tuning (coluna "texto")
+  data/poemas_alvaro_campos.json   -> lista de dicionarios com metadados
+  data/dataset_alvaro_campos.csv   -> formato pronto para fine-tuning (coluna "texto")
+
+O JSON contem todos os poemas coletados. O CSV contem apenas os poemas
+em portugues, filtrados por deteccao de idioma via langdetect.
 
 Uso:
-    pip install requests beautifulsoup4
-    python scrape_alvaro_campos.py
+    pip install requests beautifulsoup4 langdetect
+    python src/scrape_alvaro_campos.py
 
-Correções aplicadas:
-  - Encoding: usa r.content + BeautifulSoup detecta charset do HTML (corrige Á→Ã)
-  - Seletor de autor: usa div.autor em vez de soup.find(string=...) que não
+Correcoes aplicadas:
+  - Encoding: usa r.content + BeautifulSoup detecta charset do HTML (corrige A->A com acento)
+  - Seletor de autor: usa div.autor em vez de soup.find(string=...) que nao
     encontrava texto dentro de tags
-  - Extração do título: primeiro <p> de div.texto-poesia
-  - Extração do corpo: demais <p> de div.texto-poesia
-  - Saída em CSV compatível com finetune.py (coluna "texto")
+  - Extracao do titulo: primeiro <p> de div.texto-poesia
+  - Extracao do corpo: demais <p> de div.texto-poesia
+  - Saida em CSV compativel com finetune.py (coluna "texto")
 """
 
 import csv
@@ -27,17 +30,18 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+from langdetect import detect, LangDetectException
 
 # ---------------------------------------------------------------------------
-# Configurações
+# Configuracoes
 # ---------------------------------------------------------------------------
-BASE_URL  = "http://arquivopessoa.net"
-AUTOR_ALVO = "Álvaro de Campos"
+BASE_URL   = "http://arquivopessoa.net"
+AUTOR_ALVO = "Alvaro de Campos"
 
 ID_START = 1
-ID_END   = 4500       # margem generosa; o script pula páginas vazias ou de outros autores
+ID_END   = 4500       # margem generosa; o script pula paginas vazias ou de outros autores
 
-DELAY_ENTRE_REQUESTS = 1.0   # segundos — seja gentil com o servidor
+DELAY_ENTRE_REQUESTS = 1.0   # segundos
 OUTPUT_DIR = Path("data")
 
 HEADERS = {
@@ -58,26 +62,26 @@ def fetch(url: str):
             return None
         r.raise_for_status()
         # Usa r.content (bytes) para que o BeautifulSoup detecte o charset
-        # do meta-tag do HTML corretamente, evitando o problema Á→Ã
+        # do meta-tag do HTML corretamente
         return BeautifulSoup(r.content, "html.parser")
     except requests.RequestException as e:
-        print(f"  ⚠️  Erro em {url}: {e}")
+        print(f"  Erro em {url}: {e}")
         return None
 
 
 def extrair_poema(soup: BeautifulSoup, url: str):
     """
-    Extrai título, autor, corpo do poema e fonte bibliográfica.
-    Retorna None se a página não for de Álvaro de Campos.
+    Extrai titulo, autor, corpo do poema e fonte bibliografica.
+    Retorna None se a pagina nao for de Alvaro de Campos.
     """
-    # Verifica se é do Álvaro de Campos usando div.autor
+    # Verifica se e do Alvaro de Campos usando div.autor
     autor_div = soup.find("div", class_="autor")
     if not autor_div:
         return None
-    if AUTOR_ALVO.lower() not in autor_div.get_text().lower():
+    if "lvaro de Campos" not in autor_div.get_text():
         return None
 
-    # Conteúdo do poema está em div.texto-poesia
+    # Conteudo do poema esta em div.texto-poesia
     texto_div = soup.find("div", class_="texto-poesia")
     if not texto_div:
         return None
@@ -88,14 +92,14 @@ def extrair_poema(soup: BeautifulSoup, url: str):
     if not paragrafos:
         return None
 
-    # Primeiro parágrafo é o título; o restante é o corpo
+    # Primeiro paragrafo e o titulo; o restante e o corpo
     titulo = paragrafos[0]
     corpo  = "\n".join(paragrafos[1:]).strip()
 
     if not corpo:
         return None
 
-    # Fonte bibliográfica
+    # Fonte bibliografica
     biblio_div = soup.find("div", class_="biblio")
     fonte = biblio_div.get_text(strip=True) if biblio_div else ""
 
@@ -105,7 +109,7 @@ def extrair_poema(soup: BeautifulSoup, url: str):
 
     return {
         "titulo": titulo,
-        "autor":  AUTOR_ALVO,
+        "autor":  "Alvaro de Campos",
         "data":   data,
         "url":    url,
         "corpo":  corpo,
@@ -120,7 +124,7 @@ def main():
     OUTPUT_DIR.mkdir(exist_ok=True)
 
     poemas = []
-    print(f"🔍 Iniciando scraping de ID {ID_START} a {ID_END}...\n")
+    print(f"Iniciando scraping de ID {ID_START} a {ID_END}...\n")
 
     for id_ in range(ID_START, ID_END + 1):
         url = f"{BASE_URL}/textos/{id_}"
@@ -134,32 +138,44 @@ def main():
         poema = extrair_poema(soup, url)
         if poema:
             poemas.append(poema)
-            print(f"  ✅ [{id_:04d}] {poema['titulo'][:60]}")
+            print(f"  [{id_:04d}] {poema['titulo'][:60]}")
         else:
             if id_ % 100 == 0:
                 print(f"  ... verificando id {id_}")
 
         time.sleep(DELAY_ENTRE_REQUESTS)
 
-    print(f"\n📚 Total de poemas coletados: {len(poemas)}")
+    print(f"\nTotal de poemas coletados: {len(poemas)}")
 
     # --- JSON completo com metadados ---
     json_path = OUTPUT_DIR / "poemas_alvaro_campos.json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(poemas, f, ensure_ascii=False, indent=2)
-    print(f"💾 JSON salvo em: {json_path}")
+    print(f"JSON salvo em: {json_path}")
 
-    # --- CSV compatível com finetune.py (coluna "texto") ---
+    # --- CSV compativel com finetune.py (coluna "texto") ---
+    # Apenas poemas em portugues; poemas em outro idioma ficam somente no JSON.
     csv_path = OUTPUT_DIR / "dataset_alvaro_campos.csv"
+    ignorados = 0
     with open(csv_path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["texto"])
         writer.writeheader()
         for poema in poemas:
             texto = f"{poema['titulo']}\n\n{poema['corpo']}"
+            try:
+                idioma = detect(poema["corpo"])
+            except LangDetectException:
+                ignorados += 1
+                continue
+            if idioma != "pt":
+                ignorados += 1
+                continue
             writer.writerow({"texto": texto})
-    print(f"💾 CSV salvo em: {csv_path}")
+    print(f"CSV salvo em: {csv_path}")
+    if ignorados:
+        print(f"  {ignorados} poema(s) em outro idioma mantidos apenas no JSON.")
 
-    print("\n✅ Scraping concluído!")
+    print("\nScraping concluido!")
 
 
 if __name__ == "__main__":

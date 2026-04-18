@@ -12,7 +12,7 @@ ADAPTER_REPO = "Rabramo/gerador-poesias-alvaro-campos"
 
 def main():
     try:
-        print("🔄 Carregando modelo base...")
+        print("Carregando modelo base...")
         tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
         base = AutoModelForCausalLM.from_pretrained(
             BASE_MODEL,
@@ -20,20 +20,20 @@ def main():
             device_map="cpu",
         )
 
-        print("🔄 Carregando adapter LoRA...")
+        print("Carregando adapter LoRA...")
         model = PeftModel.from_pretrained(base, ADAPTER_REPO)
 
-        print("🔄 Mesclando pesos...")
+        print("Mesclando pesos...")
         model = model.merge_and_unload()
 
-        print("🚀 Fazendo push...")
+        print("Fazendo push...")
         model.push_to_hub(ADAPTER_REPO)
         tokenizer.push_to_hub(ADAPTER_REPO)
 
-        print("✅ Pronto!")
+        print("Pronto!")
 
     except Exception as exc:
-        print("❌ Erro durante o merge ou push do modelo:", exc)
+        print("Erro durante o merge ou push do modelo:", exc)
         raise
 
 
